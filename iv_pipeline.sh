@@ -26,6 +26,7 @@ TICKER=$(echo "$1" | tr '[:lower:]' '[:upper:]')
 ROOT_DIR="$(pwd)"
 EARNINGS_DIR="${ROOT_DIR}/earnings_data"
 TICKER_FILE="${EARNINGS_DIR}/${TICKER}_earnings.csv"
+FLATFILES_DIR="${ROOT_DIR}/polygon_flat_files/us_options_opra"
 
 # --- Step 1: Get Earnings Data ---
 echo "=============================================================="
@@ -45,12 +46,20 @@ echo "🔍 Step 2: Fetching historical option tickers for ${TICKER}"
 echo "=============================================================="
 python3 get_options_ticker_from_earnings.py "$TICKER"
 
-# # --- Step 3: Download Flatfiles ---
-# echo ""
-# echo "=============================================================="
-# echo "💾 Step 3: Downloading pre/post-earnings flatfiles"
-# echo "=============================================================="
-# bash flat_file_download.sh
+# --- Step 3: Download Flatfiles ---
+echo ""
+echo "=============================================================="
+echo "💾 Step 3: Downloading pre/post-earnings flatfiles"
+echo "=============================================================="
+bash flat_file_download.sh
+
+# --- Step 3.5: Unzip flatfiles ---
+echo ""
+echo "🗜️  Unzipping downloaded flatfiles..."
+find "$FLATFILES_DIR" -type f -name "*.gz" | while read -r f; do
+  echo "   📂 Extracting $(basename "$f")"
+  gunzip -f "$f"
+done
 
 # --- Step 4: Run IV Crush Analysis ---
 echo ""
@@ -62,3 +71,15 @@ python3 iv_crush_analysis.py
 echo ""
 echo "✅ Pipeline complete for ${TICKER}"
 echo "   → Check 'options_data/${TICKER}_iv_crush.csv'"
+
+
+# --- Step 5: Cleanup temporary flatfiles ---
+echo ""
+echo "🧹 Cleaning up temporary flatfiles for ${TICKER}..."
+rm -f "${FLATFILES_DIR}"/*.csv
+
+# --- Done ---
+echo ""
+echo "✅ Pipeline complete for ${TICKER}"
+echo "   → Results: ${OUTPUT_DIR}/${TICKER}_iv_crush.csv"
+echo "   → Temporary flatfiles removed."
