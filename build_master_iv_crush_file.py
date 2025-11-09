@@ -26,16 +26,22 @@ def bs_call(S,K,T,r,s):
     if T<=0 or s<=0: return 0
     d1=(np.log(S/K)+(r+0.5*s**2)*T)/(s*np.sqrt(T)); d2=d1-s*np.sqrt(T)
     return S*norm.cdf(d1)-K*np.exp(-r*T)*norm.cdf(d2)
+
+
 def bs_put(S,K,T,r,s):
     if T<=0 or s<=0: return 0
     d1=(np.log(S/K)+(r+0.5*s**2)*T)/(s*np.sqrt(T)); d2=d1-s*np.sqrt(T)
     return K*np.exp(-r*T)*norm.cdf(-d2)-S*norm.cdf(-d1)
+
+
 def implied_vol(p,S,K,T,r,typ):
     fn=bs_call if typ=="call" else bs_put
     intrinsic=max(S-K,0) if typ=="call" else max(K-S,0)
     if p<=0 or p<intrinsic: return None
     try: return brentq(lambda x: fn(S,K,T,r,x)-p,1e-4,5.0)
     except: return None
+    
+    
 def parse_opt(t):
     try:
         t=t.split(":")[1]
@@ -46,6 +52,8 @@ def parse_opt(t):
                 return s,e,ty,k
     except: return None,None,None,None
     return None,None,None,None
+
+
 def load(date):
     for ext in [".csv",".csv.gz"]:
         p=os.path.join(FLATFILES_DIR,f"{date}{ext}")
