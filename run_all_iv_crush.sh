@@ -12,7 +12,7 @@ ENDPOINT="https://files.massive.com"
 FLAT_DIR="polygon_flat_files/us_options_opra"
 TMP_DIR="${FLAT_DIR}/tmp_unzipped"
 OUT_DIR="options_data"
-MASTER_CSV="${OUT_DIR}/atm_iv_earnings_master.csv"
+MASTER_CSV="${OUT_DIR}/atm_iv_earnings_master_2.csv"
 EARNINGS_DIR="earnings_data"
 
 mkdir -p "$FLAT_DIR" "$OUT_DIR" "$TMP_DIR"
