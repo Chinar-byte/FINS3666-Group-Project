@@ -18,7 +18,7 @@ if len(sys.argv) < 2:
 
 ticker = sys.argv[1].upper()
 LIMIT = 50  # fetch a large window first
-START_YEAR, END_YEAR = 2022, 2025
+START_YEAR, END_YEAR = 2021, 2025
 
 print(f"📅 Fetching earnings dates for {ticker} ({START_YEAR}-{END_YEAR})")
 

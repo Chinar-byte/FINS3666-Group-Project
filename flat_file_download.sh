@@ -38,31 +38,48 @@ for file in "$EARNINGS_DIR"/*.csv; do
   echo "$RAW_DATES" | while read -r d; do
     [ -z "$d" ] && continue
 
-    # Offsets: ±1 and ±2 days
-    for offset in -2 -1 1 2; do
+    # ------------------------------------------------------------
+    # Download 30 days BEFORE + 1 and 2 days AFTER earnings date
+    # ------------------------------------------------------------
+
+    # Days we want:
+    #   -30 to -1   (30-day RV window)
+    #   +1, +2       (post-earnings comparison)
+    # ------------------------------------------------------------
+    for offset in $(seq -30 -1) 1 2; do
+
+      # Compute date
       if [[ "$OSTYPE" == "darwin"* ]]; then
-        date_str=$(date -v${offset}d -jf "%Y-%m-%d" "$d" +"%Y-%m-%d" 2>/dev/null || true)
+        date_str=$(date -v"${offset}"d -jf "%Y-%m-%d" "$d" +"%Y-%m-%d" 2>/dev/null || true)
       else
         date_str=$(date -d "$d ${offset} day" +"%Y-%m-%d" 2>/dev/null || true)
       fi
 
-      [ -z "$date_str" ] && continue
+      # Skip invalid dates
+      [[ -z "$date_str" ]] && continue
 
       year=$(echo "$date_str" | cut -d'-' -f1)
       month=$(echo "$date_str" | cut -d'-' -f2)
+
       FILE_PATH="us_options_opra/day_aggs_v1/${year}/${month}/${date_str}.csv.gz"
+      DEST_PATH_UNZIPPED="${DEST_DIR}/${date_str}.csv"
       DEST_PATH="${DEST_DIR}/${date_str}.csv.gz"
 
-      if [[ -f "$DEST_PATH" ]]; then
+
+      # Skip if already downloaded
+      if [[ -f "$DEST_PATH"  || -f "$DEST_PATH_UNZIPPED" ]]; then
         echo "   ✅ Already have ${date_str}"
         continue
       fi
 
+      # Download
       echo "   📥 Downloading ${FILE_PATH} ..."
       aws s3 cp "s3://flatfiles/${FILE_PATH}" "$DEST_PATH" \
         --endpoint-url "$ENDPOINT" \
-        || echo "   ⚠️ Flatfile missing for ${date_str}"
+        || echo "   ⚠️ Missing: ${date_str} (skipping)"
+
     done
+
   done
 done
 

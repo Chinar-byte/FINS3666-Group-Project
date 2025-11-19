@@ -74,9 +74,9 @@ echo "   → Check 'options_data/${TICKER}_iv_crush.csv'"
 
 
 # --- Step 5: Cleanup temporary flatfiles ---
-echo ""
-echo "🧹 Cleaning up temporary flatfiles for ${TICKER}..."
-rm -f "${FLATFILES_DIR}"/*.csv
+# echo ""
+# echo "🧹 Cleaning up temporary flatfiles for ${TICKER}..."
+# rm -f "${FLATFILES_DIR}"/*.csv
 
 # --- Done ---
 echo ""
